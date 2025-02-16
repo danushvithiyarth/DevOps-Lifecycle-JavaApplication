@@ -1,9 +1,7 @@
 FROM maven:latest AS build
 WORKDIR /build
 COPY . /build
-RUN mvn validate
-RUN mvn test
-RUN mvn install
+RUN mvn install 
 
 FROM openjdk:25-oraclelinux9
 WORKDIR /app
