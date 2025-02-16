@@ -13,8 +13,7 @@ pipeline {
             steps {
                 script {
                     echo "Maven comlie and test for code coverage"
-                        sh 'mvn complie'
-                        sh 'mvn test'
+                        sh 'mvn clean package'
                 }
             }
         }
@@ -27,7 +26,7 @@ pipeline {
                       ${SCANNER_HOME}/bin/sonar-scanner \
                       -Dsonar.projectKey=javakey \
                       -Dsonar.projectName=java-app \
-                    
+                       -Dsonar.java.binaries=target/classes
                      '''
                     }     
                 }
