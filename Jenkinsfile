@@ -36,6 +36,7 @@ pipeline {
             steps {
                 script {
                     echo "docker build"
+                        sh 'docker image prune -f'
                         sh 'docker build -t danushvithiyarth/java-app:latest .'
                 }
             }
