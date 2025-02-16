@@ -1,10 +1,23 @@
 pipeline {
     agent any
 
+    tools {
+      maven 'maven'
+    }
+    
     environment{
         SCANNER_HOME = tool 'sonar-scanner'
     }
     stages {
+        stage('Maven') {
+            steps {
+                script {
+                    echo "Maven comlie and test for code coverage"
+                        sh 'mvn complie'
+                        sh 'mvn test'
+                }
+            }
+        }
         stage('SonarQube-analysis') { 
             steps {
                 script {
@@ -12,9 +25,9 @@ pipeline {
                     withSonarQubeEnv('sonar-server') {
                     sh '''
                       ${SCANNER_HOME}/bin/sonar-scanner \
-                      -Dsonar.projectKey=nodekey \
-                      -Dsonar.projectName=nodejs \
-                      -Dsonar.java.binaries=target
+                      -Dsonar.projectKey=javakey \
+                      -Dsonar.projectName=java-app \
+                    
                      '''
                     }     
                 }
