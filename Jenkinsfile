@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     echo "trivy scan"
-                        sh 'trivy image --format table -o report.html .'
+                        sh 'trivy image --format table -o report.html danushvithiyarth/java-app:latest'
                 }
             }
         }
