@@ -1,151 +1,72 @@
-# Cloud Run Template Microservice
+# DevOps Lifecycle for Java Application with Kubernetes Ingress
 
-A template repository for a Cloud Run microservice, written in Java.
+## Project Overview
 
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+This project demonstrates a complete DevOps lifecycle for a Java application, integrating CI/CD, containerization, security scanning, and Kubernetes deployment with Ingress routing. The application is hosted under a custom domain (danushvithiyarth.in), including path-based routing for /dev.
 
-## Prerequisite
+## Key Highlights
 
-* Enable the Cloud Run API via the [console](https://console.cloud.google.com/apis/library/run.googleapis.com?_ga=2.124941642.1555267850.1615248624-203055525.1615245957) or CLI:
+Automated Infrastructure Provisioning: Used Terraform to create AWS EC2 instances and security groups.
 
-```bash
-gcloud services enable run.googleapis.com
-```
+Docker Image Creation: Built a multi-stage Dockerfile for efficient Java application containerization.
 
-## Features
+Continuous Integration (CI): Jenkins pipeline with Maven build, SonarQube analysis, and Trivy security scans.
 
-* **Spring Boot**: Web server framework
-* **Jib Maven Plugin**: Tooling to build production-ready container images from source code and without a Dockerfile
-* **SIGTERM handler**: Catch termination signal for cleanup before Cloud Run stops the container
-* **Service metadata**: Access service metadata, project Id and region, at runtime
-* **Local development utilities**: Auto-restart with changes and prettify logs
-* **Structured logging w/ Log Correlation**: JSON formatted logger, parsable by Cloud Logging, with [automatic correlation of container logs to a request log](https://cloud.google.com/run/docs/logging#correlate-logs).
-* **Unit and System tests**: Basic unit and system tests setup for the microservice
+Containerization: Built and pushed Docker images to Docker Hub.
 
-## Local Development
+Kubernetes Deployment: Managed EKS cluster and deployed Java application using Kubernetes manifests.
 
-### Cloud Code
+Ingress Path-Based Routing: Configured NGINX Ingress to serve the application under danushvithiyarth.in and /dev.
 
-This template works with [Cloud Code](https://cloud.google.com/code), an IDE extension
-to let you rapidly iterate, debug, and run code on Kubernetes and Cloud Run.
+# Step-by-Step Process
 
-Learn how to use Cloud Code for:
+## Infrastructure Setup with Terraform
 
-* Local development - [VSCode](https://cloud.google.com/code/docs/vscode/developing-a-cloud-run-service), [IntelliJ](https://cloud.google.com/code/docs/intellij/developing-a-cloud-run-service)
+Provisioned AWS EC2 instances for Jenkins and Kubernetes deployment.
 
-* Local debugging - [VSCode](https://cloud.google.com/code/docs/vscode/debugging-a-cloud-run-service), [IntelliJ](https://cloud.google.com/code/docs/intellij/debugging-a-cloud-run-service)
+Configured security groups and access rules without manual AWS Dashboard modifications.
 
-* Deploying a Cloud Run service - [VSCode](https://cloud.google.com/code/docs/vscode/deploying-a-cloud-run-service), [IntelliJ](https://cloud.google.com/code/docs/intellij/deploying-a-cloud-run-service)
-* Creating a new application from a custom template (`.template/templates.json` allows for use as an app template) - [VSCode](https://cloud.google.com/code/docs/vscode/create-app-from-custom-template), [IntelliJ](https://cloud.google.com/code/docs/intellij/create-app-from-custom-template)
+## Docker Image Creation with Multi-Stage Build
 
-### CLI tooling
+Created a multi-stage Dockerfile:
 
-#### Local development
+Used maven:latest for building the application.
 
-1. Start the server with hot reload:
-    ```bash
-    mvn spring-boot:run
-    ```
-    * Note: uncomment the JSON formatter in [logback-spring.xml](src/main/resources/logback-spring.xml)
-    for Pretty Printed logging during development
+Used openjdk:25-oraclelinux9 for running the final application.
 
-#### Deploying a Cloud Run service
+Optimized the image size and ensured efficient dependency management.
 
-1. Set Project Id:
-    ```bash
-    export GOOGLE_CLOUD_PROJECT=<GCP_PROJECT_ID>
-    ```
+Built and pushed the Docker image to Docker Hub.
 
-1. Enable the Artifact Registry API:
-    ```bash
-    gcloud services enable artifactregistry.googleapis.com
-    ```
+## CI/CD Pipeline with Jenkins
 
-1. Create an Artifact Registry repo:
-    ```bash
-    export REPOSITORY="samples"
-    export REGION=us-central1
-    gcloud artifacts repositories create $REPOSITORY --location $REGION --repository-format "docker"
-    ```
-  
-1. Use the gcloud credential helper to authorize Docker to push to your Artifact Registry:
-    ```bash
-    gcloud auth configure-docker
-    ```
+Installed Jenkins with required plugins (SonarQube scanner, Stage View, Maven, etc.).
 
-1. Build the container:
-    ```bash
-    mvn clean compile jib:build -Dimage=$REGION-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/$REPOSITORY/microservice-template
-    ```
+Configured SonarQube server for static code analysis.
 
-1. Deploy to Cloud Run:
-    ```bash
-    gcloud run deploy microservice-template \
-      --image $REGION-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/$REPOSITORY/microservice-template \
-      --region $REGION
-    ```
+Integrated Trivy to generate vulnerability reports for Docker images.
 
-### Run sample tests
+Successfully triggered automated builds via Git Webhooks.
 
-1. Run unit tests
-    ```bash
-    mvn test
-    ```
+## Kubernetes Deployment with AWS EKS
 
-2. Run system tests
-    ```bash
-    gcloud builds submit \
-        --config src/test/resources/advance.cloudbuild.yaml \
-        --substitutions 'COMMIT_SHA=manual,REPO_NAME=cloud-run-microservice-template-java'
-    ```
-    The Cloud Build configuration file will build and deploy the containerized service
-    to Cloud Run, run tests managed by Maven, then clean up testing resources. This configuration restricts public
-    access to the test service. Therefore, service accounts need to have the permission to issue Id tokens for request authorization:
-    * Enable Cloud Run, Cloud Build, Artifact Registry, and IAM APIs:
-        ```bash
-        gcloud services enable run.googleapis.com cloudbuild.googleapis.com iamcredentials.googleapis.com artifactregistry.googleapis.com
-        ```
+Installed AWS CLI, eksctl, and configured Kubeconfig.
 
-    * Set environment variables.
-        ```bash
-        export PROJECT_ID="$(gcloud config get-value project)"
-        export PROJECT_NUMBER="$(gcloud projects describe $(gcloud config get-value project) --format='value(projectNumber)')"
-        ```
+Created an EKS Cluster and a dedicated namespace (java-deployment).
 
-    * Create an Artifact Registry repo (or use another already created repo):
-        ```bash
-        export REPOSITORY="samples"
-        export REGION=us-central1
-        gcloud artifacts repositories create $REPOSITORY --location $REGION --repository-format "docker"
-        ```
-  
-    * Create service account `token-creator` with `Service Account Token Creator` and `Cloud Run Invoker` roles.
-        ```bash
-        gcloud iam service-accounts create token-creator
+Deployed the application with replica management (HPA), ClusterIP service, and ingress routing.
 
-        gcloud projects add-iam-policy-binding $PROJECT_ID \
-            --member="serviceAccount:token-creator@$PROJECT_ID.iam.gserviceaccount.com" \
-            --role="roles/iam.serviceAccountTokenCreator"
-        gcloud projects add-iam-policy-binding $PROJECT_ID \
-            --member="serviceAccount:token-creator@$PROJECT_ID.iam.gserviceaccount.com" \
-            --role="roles/run.invoker"
-        ```
+## Ingress Path-Based Routing
 
-    * Add `Service Account Token Creator` role to the Cloud Build service account.
-        ```bash
-        gcloud projects add-iam-policy-binding $PROJECT_ID \
-            --member="serviceAccount:$PROJECT_NUMBER@cloudbuild.gserviceaccount.com" \
-            --role="roles/iam.serviceAccountTokenCreator"
-        ```
+Configured NGINX Ingress Controller using Helm.
 
-## Maintenance & Support
+Deployed Ingress rules to expose services under danushvithiyarth.in and danushvithiyarth.in/dev.
 
-This repo performs basic periodic testing for maintenance. Please use the issue tracker for bug reports, features requests and submitting pull requests.
+Verified successful routing for both the Java application and an Nginx-based service under /dev.
 
-## Contributions
+# Outcome
 
-Please see the [contributing guidelines](CONTRIBUTING.md)
+ Successfully built an automated DevOps lifecycle for a Java application.
+ Achieved seamless CI/CD with Jenkins, SonarQube, and Docker image security scanning.
+ Deployed a scalable application on AWS EKS with domain-based Ingress routing.
 
-## License
-
-This library is licensed under Apache 2.0. Full license text is available in [LICENSE](LICENSE).
