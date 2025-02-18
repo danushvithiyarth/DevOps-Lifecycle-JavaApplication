@@ -4,6 +4,11 @@
 
 This project demonstrates a complete DevOps lifecycle for a Java application, integrating CI/CD, containerization, security scanning, and Kubernetes deployment with Ingress routing. The application is hosted under a custom domain (danushvithiyarth.in), including path-based routing for /dev.
 
+The application code was refered from:
+
+git clone https://github.com/GoogleCloudPlatform/cloud-run-microservice-template-java.git
+
+
 ## Key Highlights
 
 Automated Infrastructure Provisioning: Used Terraform to create AWS EC2 instances and security groups.
