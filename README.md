@@ -2,8 +2,7 @@
 
 ## Project Overview
 
-This project demonstrates a complete DevOps lifecycle for a Java application, integrating CI/CD, containerization, security scanning, and Kubernetes deployment with Ingress routing. The application is hosted under a custom domain (danushvithiyarth.in), including path-based routing for /dev.
-
+This project demonstrates a complete DevOps lifecycle for a Java application, integrating CI/CD, containerization, security scanning, Kubernetes deployment with Ingress routing, and monitoring using Prometheus and Grafana. The application is hosted under a custom domain (danushvithiyarth.in), including path-based routing for /dev.
 The application code was refered from:
 
 git clone https://github.com/GoogleCloudPlatform/cloud-run-microservice-template-java.git
@@ -22,6 +21,8 @@ Containerization: Built and pushed Docker images to Docker Hub.
 Kubernetes Deployment: Managed EKS cluster and deployed Java application using Kubernetes manifests.
 
 Ingress Path-Based Routing: Configured NGINX Ingress to serve the application under danushvithiyarth.in and /dev.
+
+Monitoring with Prometheus and Grafana: Installed and configured monitoring tools for resource tracking and visualization.
 
 # Step-by-Step Process
 
@@ -69,9 +70,28 @@ Deployed Ingress rules to expose services under danushvithiyarth.in and danushvi
 
 Verified successful routing for both the Java application and an Nginx-based service under /dev.
 
+## Monitoring with Prometheus and Grafana
+
+Prometheus and Grafana Installation: Installed using Helm for monitoring Kubernetes cluster and application metrics.
+
+Configuration: Set up data sources, Prometheus scraping configurations, and alerting rules.
+
+Accessing Grafana: Retrieved admin credentials and logged into Grafana UI.
+
+Creating Dashboards: Imported predefined Grafana dashboards for Kubernetes monitoring and configured Prometheus as the data source.
+
+Metrics Tracked: CPU usage, memory consumption, pod availability, and request latency.
+
 # Outcome
 
  Successfully built an automated DevOps lifecycle for a Java application.
+
  Achieved seamless CI/CD with Jenkins, SonarQube, and Docker image security scanning.
+
  Deployed a scalable application on AWS EKS with domain-based Ingress routing.
 
+ Integrated Prometheus and Grafana for real-time monitoring and dashboard visualization.
+
+# Contributors
+
+Danush Vithiyarth Jaiganesh - DevOps Engineer
