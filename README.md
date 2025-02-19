@@ -92,6 +92,10 @@ Metrics Tracked: CPU usage, memory consumption, pod availability, and request la
 
  Integrated Prometheus and Grafana for real-time monitoring and dashboard visualization.
 
+# Note
+
+ This project has two git branch "main" & "logs", "main" branch has all source code and configuration files and "logs" all activity logs in png format.
+
 # Contributors
 
 Danush Vithiyarth Jaiganesh - DevOps Engineer
